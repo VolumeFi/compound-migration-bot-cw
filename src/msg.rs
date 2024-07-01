@@ -21,7 +21,6 @@ pub enum ExecuteMsg {
         signature: String,
         receiver: String,
         ctoken: String,
-        amount: Uint256,
         dex: String,
         payload: String,
     },
