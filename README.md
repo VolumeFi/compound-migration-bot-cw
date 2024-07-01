@@ -2,7 +2,7 @@
 
 This is a CosmWasm smart contract to manage Compound Migration Bot smart contract on EVM chain written in Vyper.
 
-his contract should be deployed on Paloma once per each target chain.
+Each target chain, will need it's own deployed instance of this contract.
 
 Each contract sends a paloma transaction to Vyper contract via Compass to mint Compound asset from bridged USDC or swapped underlying asset.
 
