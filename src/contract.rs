@@ -59,11 +59,10 @@ pub fn execute(
             signature,
             receiver,
             ctoken,
-            amount,
             dex,
             payload,
         } => execute::receive_from_bridge_other(
-            deps, env, info, message, signature, receiver, ctoken, amount, dex, payload,
+            deps, env, info, message, signature, receiver, ctoken, dex, payload,
         ),
         ExecuteMsg::SetPaloma {} => execute::set_paloma(deps, info),
         ExecuteMsg::UpdateCompass { new_compass } => {
@@ -190,7 +189,6 @@ pub mod execute {
         signature: String,
         receiver: String,
         ctoken: String,
-        amount: Uint256,
         dex: String,
         payload: String,
     ) -> Result<Response<PalomaMsg>, ContractError> {
@@ -227,11 +225,6 @@ pub mod execute {
                             internal_type: None,
                         },
                         Param {
-                            name: "amount".to_string(),
-                            kind: ParamType::Uint(256),
-                            internal_type: None,
-                        },
-                        Param {
                             name: "dex".to_string(),
                             kind: ParamType::Address,
                             internal_type: None,
@@ -264,7 +257,6 @@ pub mod execute {
                     Address::from_str(receiver.as_str()).unwrap(),
                 ));
                 tokens.push(Token::Address(Address::from_str(ctoken.as_str()).unwrap()));
-                tokens.push(Token::Uint(Uint::from_big_endian(&amount.to_be_bytes())));
                 tokens.push(Token::Address(Address::from_str(dex.as_str()).unwrap()));
                 tokens.push(Token::Bytes(hex::decode(payload.clone()).unwrap()));
                 WITHDRAW_TIMESTAMP.save(deps.storage, (message, signature), &env.block.time)?;
@@ -276,7 +268,6 @@ pub mod execute {
                 Address::from_str(receiver.as_str()).unwrap(),
             ));
             tokens.push(Token::Address(Address::from_str(ctoken.as_str()).unwrap()));
-            tokens.push(Token::Uint(Uint::from_big_endian(&amount.to_be_bytes())));
             tokens.push(Token::Address(Address::from_str(dex.as_str()).unwrap()));
             tokens.push(Token::Bytes(hex::decode(payload.clone()).unwrap()));
             WITHDRAW_TIMESTAMP.save(deps.storage, (message, signature), &env.block.time)?;

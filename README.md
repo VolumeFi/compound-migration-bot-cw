@@ -1,85 +1,65 @@
-# CosmWasm Starter Pack
+# Compound Migration Bot CosmWasm smart contract
 
-This is a template to build smart contracts in Rust to run inside a
-[Cosmos SDK](https://github.com/cosmos/cosmos-sdk) module on all chains that enable it.
-To understand the framework better, please read the overview in the
-[cosmwasm repo](https://github.com/CosmWasm/cosmwasm/blob/master/README.md),
-and dig into the [cosmwasm docs](https://www.cosmwasm.com).
-This assumes you understand the theory and just want to get coding.
+This is a CosmWasm smart contract to manage Compound Migration Bot smart contract on EVM chain written in Vyper.
 
-## Creating a new repo from template
+Each target chain, will need it's own deployed instance of this contract.
 
-Assuming you have a recent version of Rust and Cargo installed
-(via [rustup](https://rustup.rs/)),
-then the following should get you a new repo to start a contract:
+Each contract sends a paloma transaction to Vyper contract via Compass to mint Compound asset from bridged USDC or swapped underlying asset.
 
-Install [cargo-generate](https://github.com/ashleygwilliams/cargo-generate) and cargo-run-script.
-Unless you did that before, run this line now:
+## ExecuteMsg
 
-```sh
-cargo install cargo-generate --features vendored-openssl
-cargo install cargo-run-script
-```
+### ReceiveFromBridgeUsdc
 
-Now, use it to create your new contract.
-Go to the folder in which you want to place it and run:
+Run `receive_from_bridge_usdc` function on Vyper smart contract.
 
-**Latest**
+| Key       | Type   | Description                                                           |
+|-----------|--------|-----------------------------------------------------------------------|
+| message   | String | USDC bridge message bytes data                                        |
+| signature | String | USDC bridge signature bytes data                                      |
+| receiver  | String | Receiver EVM address. It should be same as the token migrator address |
 
-```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME
-```
+### ReceiveFromBridgeUsdc
 
-For cloning minimal code repo:
+Run `receive_from_bridge_usdc` function on Vyper smart contract.
 
-```sh
-cargo generate --git https://github.com/CosmWasm/cw-template.git --name PROJECT_NAME -d minimal=true
-```
+| Key       | Type   | Description                                                           |
+|-----------|--------|-----------------------------------------------------------------------|
+| message   | String | USDC bridge message bytes data                                        |
+| signature | String | USDC bridge signature bytes data                                      |
+| receiver  | String | Receiver EVM address. It should be same as the token migrator address |
+| ctoken    | String | cToken address to be migrated                                         |
+| dex       | String | dex address to exchange USDC into asset                               |
+| payload   | String | payload data to exchange USDC into asset                              |
 
-You will now have a new folder called `PROJECT_NAME` (I hope you changed that to something else)
-containing a simple working contract and build system that you can customize.
+### SetPaloma
 
-## Create a Repo
+Run `set_paloma` function on Vyper smart contract to register this contract address data in the Vyper contract.
 
-After generating, you have a initialized local git repo, but no commits, and no remote.
-Go to a server (eg. github) and create a new upstream repo (called `YOUR-GIT-URL` below).
-Then run the following:
+| Key | Type | Description |
+|-----|------|-------------|
+| -   | -    | -           |
 
-```sh
-# this is needed to create a valid Cargo.lock file (see below)
-cargo check
-git branch -M main
-git add .
-git commit -m 'Initial Commit'
-git remote add origin YOUR-GIT-URL
-git push -u origin main
-```
+### Update*
 
-## CI Support
+Run `update_*` function on Vyper smart contract to register this contract address data in the Vyper contract.
 
-We have template configurations for both [GitHub Actions](.github/workflows/Basic.yml)
-and [Circle CI](.circleci/config.yml) in the generated project, so you can
-get up and running with CI right away.
+| Key | Type | Description |
+|-----|------|-------------|
+| -   | -    | -           |
 
-One note is that the CI runs all `cargo` commands
-with `--locked` to ensure it uses the exact same versions as you have locally. This also means
-you must have an up-to-date `Cargo.lock` file, which is not auto-generated.
-The first time you set up the project (or after adding any dep), you should ensure the
-`Cargo.lock` file is updated, so the CI will test properly. This can be done simply by
-running `cargo check` or `cargo unit-test`.
+## QueryMsg
 
-## Using your project
+### GetJobId
 
-Once you have your custom repo, you should check out [Developing](./Developing.md) to explain
-more on how to run tests and develop code. Or go through the
-[online tutorial](https://docs.cosmwasm.com/) to get a better feel
-of how to develop.
+Get `job_id` of Paloma message to run `multiple_withdraw` function on a Vyper smart contract.
 
-[Publishing](./Publishing.md) contains useful information on how to publish your contract
-to the world, once you are ready to deploy it on a running blockchain. And
-[Importing](./Importing.md) contains information about pulling in other contracts or crates
-that have been published.
+| Key | Type | Description |
+|-----|------|-------------|
+| -   | -    | -           |
 
-Please replace this README file with information about your specific project. You can keep
-the `Developing.md` and `Publishing.md` files as useful references, but please set some
-proper description in the README.
+#### Response
+
+| Key    | Type   | Description      |
+|--------|--------|------------------|
+| job_id | String | Job Id on Paloma |
+
