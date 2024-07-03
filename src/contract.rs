@@ -642,3 +642,351 @@ pub mod query {
         })
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::contract::{execute, instantiate, query};
+    use crate::msg::{ExecuteMsg, GetJobIdResponse, InstantiateMsg, PalomaMsg, QueryMsg};
+    use cosmwasm_std::testing::{message_info, mock_dependencies, mock_env};
+    use cosmwasm_std::{from_json, Addr, Binary, CosmosMsg, Uint256};
+    use std::str::FromStr;
+
+    #[test]
+    fn initialization() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetJobId {}).unwrap();
+        let value: GetJobIdResponse = from_json(&res).unwrap();
+        assert_eq!("job".to_string(), value.job_id);
+    }
+
+    #[test]
+    fn receive_from_bridge_usdc() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::ReceiveFromBridgeUsdc {
+            message: "6d657373616765".to_string(),
+            signature: "7369676e6174757265".to_string(),
+            receiver: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _, payload, metadata: _
+                              }) => assert_eq!(Binary::new(hex::decode("12e4321f000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000123456789abcdef0123456789abcdef0123456700000000000000000000000000000000000000000000000000000000000000076d6573736167650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000097369676e61747572650000000000000000000000000000000000000000000000").unwrap()), payload, "Not same"),
+            _ => panic!("Error")
+        }
+    }
+
+    #[test]
+    fn receive_from_bridge_other() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::ReceiveFromBridgeOther {
+            message: "6d657373616765".to_string(),
+            signature: "7369676e6174757265".to_string(),
+            receiver: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+            ctoken: "0x123456789abcdef0123456789abcdef012345678".to_string(),
+            dex: "0x23456789abcdef0123456789abcdef0123456789".to_string(),
+            payload: "7061796c6f6164".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _, payload, metadata: _
+                              }) => assert_eq!(Binary::new(hex::decode("9d025b3400000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000123456789abcdef0123456789abcdef01234567000000000000000000000000123456789abcdef0123456789abcdef01234567800000000000000000000000023456789abcdef0123456789abcdef0123456789000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000076d6573736167650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000097369676e6174757265000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000077061796c6f616400000000000000000000000000000000000000000000000000").unwrap()), payload, "Not same"),
+            _ => panic!("Error")
+        }
+    }
+
+    #[test]
+    fn set_paloma() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::SetPaloma {};
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(hex::decode("23fde8e2").unwrap()),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_compass() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateCompass {
+            new_compass: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "6974af690000000000000000000000000123456789abcdef0123456789abcdef01234567"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_blueprint() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateBlueprint {
+            new_blueprint: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "7361564a0000000000000000000000000123456789abcdef0123456789abcdef01234567"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_refund_wallet() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateRefundWallet {
+            new_refund_wallet: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "c98856aa0000000000000000000000000123456789abcdef0123456789abcdef01234567"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_gas_fee() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateGasFee {
+            new_gas_fee: Uint256::from_str("100").unwrap(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "6e9bc3f60000000000000000000000000000000000000000000000000000000000000064"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_service_fee_collector() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateServiceFeeCollector {
+            new_service_fee_collector: "0x0123456789abcdef0123456789abcdef01234567".to_string(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "30e59cbc0000000000000000000000000123456789abcdef0123456789abcdef01234567"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+
+    #[test]
+    fn update_service_fee() {
+        let mut deps = mock_dependencies();
+        let msg = InstantiateMsg {
+            retry_delay: 30,
+            job_id: "job".to_string(),
+            creator: "creator".to_string(),
+            signers: vec!["creator".to_string()],
+        };
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let _res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        let info = message_info(&Addr::unchecked("sender".to_string()), &[]);
+
+        let msg = ExecuteMsg::UpdateServiceFee {
+            new_service_fee: Uint256::from_str("100").unwrap(),
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+        match res.messages[0].clone().msg {
+            CosmosMsg::Custom(PalomaMsg {
+                                  job_id: _,
+                                  payload,
+                                  metadata: _,
+                              }) => assert_eq!(
+                Binary::new(
+                    hex::decode(
+                        "c4ec2ff10000000000000000000000000000000000000000000000000000000000000064"
+                    )
+                        .unwrap()
+                ),
+                payload,
+                "Not same"
+            ),
+            _ => panic!("Error"),
+        }
+    }
+}
