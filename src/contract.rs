@@ -750,10 +750,10 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(hex::decode("23fde8e2").unwrap()),
                 payload,
                 "Not same"
@@ -783,15 +783,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "6974af690000000000000000000000000123456789abcdef0123456789abcdef01234567"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
@@ -821,15 +821,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "7361564a0000000000000000000000000123456789abcdef0123456789abcdef01234567"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
@@ -859,15 +859,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "c98856aa0000000000000000000000000123456789abcdef0123456789abcdef01234567"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
@@ -897,15 +897,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "6e9bc3f60000000000000000000000000000000000000000000000000000000000000064"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
@@ -935,15 +935,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "30e59cbc0000000000000000000000000123456789abcdef0123456789abcdef01234567"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
@@ -973,15 +973,15 @@ mod test {
         let res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
         match res.messages[0].clone().msg {
             CosmosMsg::Custom(PalomaMsg {
-                                  job_id: _,
-                                  payload,
-                                  metadata: _,
-                              }) => assert_eq!(
+                job_id: _,
+                payload,
+                metadata: _,
+            }) => assert_eq!(
                 Binary::new(
                     hex::decode(
                         "c4ec2ff10000000000000000000000000000000000000000000000000000000000000064"
                     )
-                        .unwrap()
+                    .unwrap()
                 ),
                 payload,
                 "Not same"
